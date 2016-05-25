@@ -1,4 +1,5 @@
-module Pair exposing (..)
+module Pair exposing (CounterPair, pairInit, pairView, PairMsg, pairUpdate, ManualUpdateMsg(Red), manualUpdate)
+
 import Counter exposing (..)
 
 import Html exposing (..)
@@ -39,32 +40,40 @@ countersView model =
 type PairMsg
   = PairRed CounterMsg
   | PairGreen CounterMsg
-  | SetRed CounterExternalMsg
   | NoOp
 
-pairUpdate : PairMsg -> CounterPair -> CounterPair
+type alias RedVal = Int
+type alias GreenVal = Int
+
+pairUpdate : PairMsg -> CounterPair -> (CounterPair, RedVal, GreenVal)
 pairUpdate msg model =
   case msg of
     NoOp ->
-      model
+      (model, Counter.getValue model.redCounter, Counter.getValue model.greenCounter)
     PairGreen sub ->
       let
         greenCounter = counterUpdate sub model.greenCounter
+        model' = { model | greenCounter = greenCounter, totalClickCount = model.totalClickCount + 1 }
       in
-        { model | greenCounter = greenCounter, totalClickCount = model.totalClickCount + 1 }
+        (model', Counter.getValue model'.redCounter, Counter.getValue model'.greenCounter)
 
     PairRed sub ->
       let
         redCounter = counterUpdate sub model.redCounter
+        model' = { model | redCounter = redCounter, totalClickCount = model.totalClickCount + 1 }
       in
-        { model
-        | redCounter = redCounter
-        , totalClickCount = model.totalClickCount + 1
-        }
-    SetRed sub ->
+        (model', Counter.getValue model'.redCounter, Counter.getValue model'.greenCounter)
+
+----- Interface helper
+
+type ManualUpdateMsg
+  = Red
+
+manualUpdate: ManualUpdateMsg -> Int -> CounterPair -> CounterPair
+manualUpdate msg value model =
+  case msg of
+    Red ->
       let
-        redCounter = counterExternalUpdate sub model.redCounter
+        redCounter = counterUpdate (SetNum value) model.redCounter
       in
-        { model
-        | redCounter = redCounter
-        }
+        { model | redCounter = redCounter }

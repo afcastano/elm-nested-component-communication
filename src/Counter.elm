@@ -1,4 +1,4 @@
-module Counter exposing (..)
+module Counter exposing (CounterModel, counterUpdate, counterInit, counterView, CounterMsg(SetNum), getValue)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -24,16 +24,7 @@ type CounterMsg
   = NoOp
   | Increment
   | Decrement
-  | External CounterExternalMsg
-
-
-type CounterExternalMsg
-    = SetNum Int
-
-counterExternalUpdate: CounterExternalMsg -> CounterModel -> CounterModel
-counterExternalUpdate msg model =
-  case msg of
-    SetNum num -> {model | num = num}
+  | SetNum Int
 
 counterUpdate : CounterMsg -> CounterModel -> CounterModel
 counterUpdate msg model =
@@ -41,16 +32,15 @@ counterUpdate msg model =
     NoOp ->
       model
     Increment ->
-      let
-        model' = { model | num = model.num + 1, btnClicks = model.btnClicks + 1 }
-      in
-        model'
+      { model | num = model.num + 1, btnClicks = model.btnClicks + 1 }
 
     Decrement ->
-      let
-        model' = { model | num = model.num - 1, btnClicks = model.btnClicks + 1 }
-      in
-        model'
+      { model | num = model.num - 1, btnClicks = model.btnClicks + 1 }
 
-    External externalMsg ->
-      counterExternalUpdate externalMsg model
+    SetNum num ->
+      {model | num = num}
+
+------- INTEFACE HELPERS
+getValue : CounterModel -> Int
+getValue model =
+  model.num

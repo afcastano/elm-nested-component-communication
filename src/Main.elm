@@ -48,16 +48,16 @@ update msg model =
 
     Pair1 sub ->
       let
-        pair1 = pairUpdate sub model.pair1
-        totals = totalsUpdate (UpdateRed pair1.redCounter.num) model.totals
-        pair2 = pairUpdate (SetRed (SetNum pair1.redCounter.num)) model.pair2
+        (pair1, redVal, greenVal) = pairUpdate sub model.pair1
+        totals = totalsUpdate (UpdateRed redVal) model.totals
+        pair2 = manualUpdate Red redVal model.pair2
       in
         { model | pair1 = pair1, totals = totals, pair2 = pair2}
 
     Pair2 sub ->
       let
-        pair2 = pairUpdate sub model.pair2
-        totals = totalsUpdate (UpdateRed pair2.redCounter.num) model.totals
-        pair1 = pairUpdate (SetRed (SetNum pair2.redCounter.num)) model.pair1
+        (pair2, redVal, greenVal) = pairUpdate sub model.pair2
+        totals = totalsUpdate (UpdateRed redVal) model.totals
+        pair1 = manualUpdate Red redVal model.pair1
       in
         { model | pair1 = pair1, totals = totals, pair2 = pair2}

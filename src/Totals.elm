@@ -1,4 +1,4 @@
-module Totals exposing (..)
+module Totals exposing (TotalsModel, totalsInit, totalsView, TotalsMsg(UpdateRed), totalsUpdate)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -14,7 +14,7 @@ totalsInit =
 
 totalsView : TotalsModel -> Html TotalsMsg
 totalsView model =
-  div [][text ("Red val: " ++ (toString model.redNum))]
+  div [style [("color", "red")]][text ("Red val: " ++ (toString model.redNum))]
 
 type TotalsMsg
   = NoOp
@@ -26,7 +26,4 @@ totalsUpdate msg model =
     NoOp ->
       model
     UpdateRed redNum ->
-      let
-        model' = { model | redNum = redNum }
-      in
-        model'
+      { model | redNum = redNum }
