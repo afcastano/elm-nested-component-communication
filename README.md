@@ -2,7 +2,7 @@
 
 The example tries to implement the accepted answer of this [StackOverflow question](http://stackoverflow.com/questions/37328203/elm-0-17-how-to-subscribe-to-sibling-nested-component-changes)
 
-Please create issues with any feedback or leave comments in the StackOverflow question.
+Please create issues with any feedback or leave comments in the [SO](http://stackoverflow.com/questions/37328203/elm-0-17-how-to-subscribe-to-sibling-nested-component-changes) question.
 
 ### Problems:
 - The parent component needs to know about the internals of the children. It is not scalable.
@@ -45,7 +45,7 @@ type alias GreenVal = Int
 pairUpdate : PairMsg -> CounterPair -> (CounterPair, RedVal, GreenVal)
 ```
 
-```Main.elm``` orchestrate the whole thing. Whenever a counter changes, it updates the other counter and the totals without knowing the internal structure of neither of them:
+```Main.elm``` orchestrates the whole thing. Whenever a counter changes, it updates the other counter and the totals without knowing the internal structure of neither of them:
 
 ```
 Pair1 sub ->
