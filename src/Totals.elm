@@ -7,13 +7,12 @@ import Html.Attributes exposing (..)
 (=>) = (,)
 
 type alias Model =
-  { redNum : Int,
-    foo: String
+  { redNum : Int
   }
 
 init : Model
 init =
-  Model 0 "Foo"
+  Model 0
 
 view : Model -> Html Msg
 view model =
