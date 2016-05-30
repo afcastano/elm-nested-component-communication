@@ -1,12 +1,10 @@
-import Counter exposing (..)
 import Pair exposing (..)
 import Totals exposing (..)
 
 import Html exposing (..)
 import Html.App as App exposing (beginnerProgram)
-import Html.Events exposing (onClick)
-import Html.Attributes exposing (style)
 
+main : Program Never
 main =
   beginnerProgram { model = init, view = view, update = update }
 
@@ -33,12 +31,6 @@ type Msg
   = NoOp
   | Pair1 PairMsg
   | Pair2 PairMsg
-
-toPair2Msg: PairMsg -> Msg
-toPair2Msg pairMsg = Pair2 pairMsg
-
-fireUpdate: Model -> Msg -> Model
-fireUpdate model msg = update msg model
 
 update : Msg -> Model -> Model
 update msg model =

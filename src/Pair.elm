@@ -6,6 +6,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.App as App
 
+(=>) : a -> b -> ( a, b )
+(=>) = (,)
 
 type alias CounterPair =
   { greenCounter : CounterModel
@@ -19,11 +21,11 @@ pairInit =
 
 pairView : CounterPair -> Html PairMsg
 pairView model =
-  div [ style [("background-color","lightgray"), ("margin-bottom", "1rem")] ]
+  div [ style ["background-color" => "lightgray", "margin-bottom" => "1rem"] ]
     [
       div []
         [
-          div [][text ("Total click count " ++ toString(model.totalClickCount))]
+          div [][text <| "Total click count " ++ (toString model.totalClickCount)]
         ]
     ,  countersView model
     ]
