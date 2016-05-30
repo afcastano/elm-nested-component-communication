@@ -44,7 +44,7 @@ update msg model =
         totals = Totals.update (Totals.UpdateRed redVal) model.totals
         pair2 = Pair.manualUpdate Pair.Red redVal model.pair2
       in
-        { model | pair1 = pair1, totals = totals, pair2 = pair2}
+        { model | pair1 = pair1, totals = totals, pair2 = pair2 }
 
     Pair2 sub ->
       let
@@ -52,4 +52,4 @@ update msg model =
         totals = Totals.update (Totals.UpdateRed redVal) model.totals
         pair1 = Pair.manualUpdate Pair.Red redVal model.pair1
       in
-        { model | pair1 = pair1, totals = totals, pair2 = pair2}
+        { model | pair1 = pair1, totals = totals, pair2 = pair2 }
