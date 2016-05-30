@@ -1,4 +1,4 @@
-module Counter exposing (CounterModel, counterUpdate, counterInit, counterView, CounterMsg(SetNum), getValue)
+module Counter exposing (Model, update, init, view, Msg(SetNum), getValue)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -7,15 +7,15 @@ import Html.Events exposing (onClick)
 (=>) : a -> b -> ( a, b )
 (=>) = (,)
 
-type alias CounterModel =
+type alias Model =
   { num : Int
   , btnClicks : Int
   }
 
-counterInit num =
-  CounterModel num 0
+init num =
+  Model num 0
 
-counterView color model =
+view color model =
   div [ style ["display" => "inline-block", "margin-right" => "1rem"] ]
     [ button [ onClick Decrement ] [ text "-" ]
     , div [ style ["color" => color]] [ text <| toString model.num ]
@@ -23,14 +23,14 @@ counterView color model =
     , div [ ] [ text <| "btn click: " ++ (toString model.btnClicks) ]
     ]
 
-type CounterMsg
+type Msg
   = NoOp
   | Increment
   | Decrement
   | SetNum Int
 
-counterUpdate : CounterMsg -> CounterModel -> CounterModel
-counterUpdate msg model =
+update : Msg -> Model -> Model
+update msg model =
   case msg of
     NoOp ->
       model
@@ -44,6 +44,6 @@ counterUpdate msg model =
       {model | num = num}
 
 ------- INTEFACE HELPERS
-getValue : CounterModel -> Int
+getValue : Model -> Int
 getValue model =
   model.num

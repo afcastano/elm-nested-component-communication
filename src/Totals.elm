@@ -1,4 +1,4 @@
-module Totals exposing (TotalsModel, totalsInit, totalsView, TotalsMsg(UpdateRed), totalsUpdate)
+module Totals exposing (Model, init, view, Msg(UpdateRed), update)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -6,25 +6,25 @@ import Html.Attributes exposing (..)
 (=>) : a -> b -> ( a, b )
 (=>) = (,)
 
-type alias TotalsModel =
+type alias Model =
   { redNum : Int,
     foo: String
   }
 
-totalsInit : TotalsModel
-totalsInit =
-  TotalsModel 0 "Foo"
+init : Model
+init =
+  Model 0 "Foo"
 
-totalsView : TotalsModel -> Html TotalsMsg
-totalsView model =
+view : Model -> Html Msg
+view model =
   div [style ["color" => "red"]][text <| "Red val: " ++ (toString model.redNum)]
 
-type TotalsMsg
+type Msg
   = NoOp
   | UpdateRed Int
 
-totalsUpdate : TotalsMsg -> TotalsModel -> TotalsModel
-totalsUpdate msg model =
+update : Msg -> Model -> Model
+update msg model =
   case msg of
     NoOp ->
       model

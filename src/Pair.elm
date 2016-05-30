@@ -1,6 +1,6 @@
-module Pair exposing (CounterPair, pairInit, pairView, PairMsg, pairUpdate, ManualUpdateMsg(Red), manualUpdate)
+module Pair exposing (Model, init, view, Msg, update, ManualUpdateMsg(Red), manualUpdate)
 
-import Counter exposing (..)
+import Counter
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -9,18 +9,18 @@ import Html.App as App
 (=>) : a -> b -> ( a, b )
 (=>) = (,)
 
-type alias CounterPair =
-  { greenCounter : CounterModel
-  , redCounter : CounterModel
+type alias Model =
+  { greenCounter : Counter.Model
+  , redCounter : Counter.Model
   , totalClickCount : Int
   }
 
-pairInit : CounterPair
-pairInit =
-  CounterPair (counterInit 0) (counterInit 0) 0
+init : Model
+init =
+  Model (Counter.init 0) (Counter.init 0) 0
 
-pairView : CounterPair -> Html PairMsg
-pairView model =
+view : Model -> Html Msg
+view model =
   div [ style ["background-color" => "lightgray", "margin-bottom" => "1rem"] ]
     [
       div []
@@ -30,38 +30,38 @@ pairView model =
     ,  countersView model
     ]
 
-countersView: CounterPair -> Html PairMsg
+countersView: Model -> Html Msg
 countersView model =
   div []
     [
-      App.map PairGreen (counterView "green" model.greenCounter)
-    , App.map PairRed (counterView "red" model.redCounter)
+      App.map PairGreen (Counter.view "green" model.greenCounter)
+    , App.map PairRed (Counter.view "red" model.redCounter)
     ]
 
 
-type PairMsg
-  = PairRed CounterMsg
-  | PairGreen CounterMsg
+type Msg
+  = PairRed Counter.Msg
+  | PairGreen Counter.Msg
   | NoOp
 
 type alias RedVal = Int
 type alias GreenVal = Int
 
-pairUpdate : PairMsg -> CounterPair -> (CounterPair, RedVal, GreenVal)
-pairUpdate msg model =
+update : Msg -> Model -> (Model, RedVal, GreenVal)
+update msg model =
   case msg of
     NoOp ->
       (model, Counter.getValue model.redCounter, Counter.getValue model.greenCounter)
     PairGreen sub ->
       let
-        greenCounter = counterUpdate sub model.greenCounter
+        greenCounter = Counter.update sub model.greenCounter
         model' = { model | greenCounter = greenCounter, totalClickCount = model.totalClickCount + 1 }
       in
         (model', Counter.getValue model'.redCounter, Counter.getValue model'.greenCounter)
 
     PairRed sub ->
       let
-        redCounter = counterUpdate sub model.redCounter
+        redCounter = Counter.update sub model.redCounter
         model' = { model | redCounter = redCounter, totalClickCount = model.totalClickCount + 1 }
       in
         (model', Counter.getValue model'.redCounter, Counter.getValue model'.greenCounter)
@@ -71,11 +71,11 @@ pairUpdate msg model =
 type ManualUpdateMsg
   = Red
 
-manualUpdate: ManualUpdateMsg -> Int -> CounterPair -> CounterPair
+manualUpdate: ManualUpdateMsg -> Int -> Model -> Model
 manualUpdate msg value model =
   case msg of
     Red ->
       let
-        redCounter = counterUpdate (SetNum value) model.redCounter
+        redCounter = Counter.update (Counter.SetNum value) model.redCounter
       in
         { model | redCounter = redCounter }
