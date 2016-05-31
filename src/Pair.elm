@@ -30,7 +30,7 @@ view model =
 type Msg
   = PairRed Counter.Msg
   | PairGreen Counter.Msg
-  | Red Int
+  | Red Model
 
 update : Msg -> Model -> Model
 update msg model =
@@ -41,5 +41,5 @@ update msg model =
     PairRed sub ->
       { model | redCounter = Counter.update sub model.redCounter, totalClickCount = model.totalClickCount + 1 }
 
-    Red val ->
-      { model | redCounter = Counter.update (Counter.SetNum val) model.redCounter }
+    Red modelOther ->
+      { model | redCounter = Counter.update (Counter.SetNum modelOther.redCounter) model.redCounter }

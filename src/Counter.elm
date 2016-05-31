@@ -28,7 +28,7 @@ view color model =
 type Msg
   = Increment
   | Decrement
-  | SetNum Int
+  | SetNum Model
 
 update : Msg -> Model -> Model
 update msg model =
@@ -39,8 +39,8 @@ update msg model =
     Decrement ->
       { model | num = model.num - 1, btnClicks = model.btnClicks + 1 }
 
-    SetNum num ->
-      {model | num = num}
+    SetNum model ->
+      {model | num = model.num}
 
 ------- INTEFACE HELPERS
 getValue : Model -> Int
