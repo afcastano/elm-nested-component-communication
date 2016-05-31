@@ -26,16 +26,13 @@ view color model =
     ]
 
 type Msg
-  = NoOp
-  | Increment
+  = Increment
   | Decrement
   | SetNum Int
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    NoOp ->
-      model
     Increment ->
       { model | num = model.num + 1, btnClicks = model.btnClicks + 1 }
 
