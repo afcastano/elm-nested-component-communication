@@ -34,22 +34,14 @@ type Msg
 type alias RedVal = Int
 type alias GreenVal = Int
 
-update : Msg -> Model -> (Model, RedVal, GreenVal)
+update : Msg -> Model -> Model
 update msg model =
   case msg of
     PairGreen sub ->
-      let
-        greenCounter = Counter.update sub model.greenCounter
-        model' = { model | greenCounter = greenCounter, totalClickCount = model.totalClickCount + 1 }
-      in
-        (model', Counter.getValue model'.redCounter, Counter.getValue model'.greenCounter)
+      { model | greenCounter = Counter.update sub model.greenCounter, totalClickCount = model.totalClickCount + 1 }
 
     PairRed sub ->
-      let
-        redCounter = Counter.update sub model.redCounter
-        model' = { model | redCounter = redCounter, totalClickCount = model.totalClickCount + 1 }
-      in
-        (model', Counter.getValue model'.redCounter, Counter.getValue model'.greenCounter)
+      { model | redCounter = Counter.update sub model.redCounter, totalClickCount = model.totalClickCount + 1 }
 
 ----- Interface helper
 
