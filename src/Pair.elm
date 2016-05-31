@@ -38,7 +38,6 @@ countersView model =
 type Msg
   = PairRed Counter.Msg
   | PairGreen Counter.Msg
-  | NoOp
 
 type alias RedVal = Int
 type alias GreenVal = Int
@@ -46,8 +45,6 @@ type alias GreenVal = Int
 update : Msg -> Model -> (Model, RedVal, GreenVal)
 update msg model =
   case msg of
-    NoOp ->
-      (model, Counter.getValue model.redCounter, Counter.getValue model.greenCounter)
     PairGreen sub ->
       let
         greenCounter = Counter.update sub model.greenCounter
