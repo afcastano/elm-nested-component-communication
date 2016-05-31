@@ -1,4 +1,4 @@
-module Pair exposing (Model, init, view, Msg(Red), update, getRedNum)
+module Pair exposing (Model, init, view, Msg(UpdateRed), update, getRedNum)
 
 import Counter
 
@@ -30,7 +30,7 @@ view model =
 type Msg
   = PairRed Counter.Msg
   | PairGreen Counter.Msg
-  | Red Int
+  | UpdateRed Int
 
 update : Msg -> Model -> Model
 update msg model =
@@ -41,7 +41,7 @@ update msg model =
     PairRed sub ->
       { model | redCounter = Counter.update sub model.redCounter, totalClickCount = model.totalClickCount + 1 }
 
-    Red value ->
+    UpdateRed value ->
       { model | redCounter = Counter.update (Counter.SetNum value) model.redCounter }
 
 
