@@ -15,7 +15,7 @@ Please create [issues](https://github.com/afcastano/elm-nested-component-communi
 ```Counter.elm``` exposes getValue method to return the value of the counter without knowing the internal structure:
 
 ```elm
-getValue : CounterModel -> Int
+getValue : Model -> Int
 getValue model =
   model.num
 ```
@@ -26,12 +26,12 @@ getValue model =
 type ManualUpdateMsg
   = Red
 
-manualUpdate: ManualUpdateMsg -> Int -> CounterPair -> CounterPair
+manualUpdate: ManualUpdateMsg -> Int -> Model -> Model
 manualUpdate msg value model =
   case msg of
     Red ->
       let
-        redCounter = counterUpdate (SetNum value) model.redCounter
+        redCounter = Counter.update (Counter.SetNum value) model.redCounter
       in
         { model | redCounter = redCounter }
 ```
@@ -42,19 +42,19 @@ Also, the normal update function returns extra data that includes the value of t
 type alias RedVal = Int
 type alias GreenVal = Int
 
-pairUpdate : PairMsg -> CounterPair -> (CounterPair, RedVal, GreenVal)
+update : Msg -> Model -> (Model, RedVal, GreenVal)
 ```
 
 ```Main.elm``` orchestrates the whole thing. Whenever a counter changes, it updates the other counter and the totals without knowing the internal structure of neither of them:
 
 ```elm
 Pair1 sub ->
-  let
-    (pair1, redVal, greenVal) = pairUpdate sub model.pair1
-    totals = totalsUpdate (UpdateRed redVal) model.totals
-    pair2 = manualUpdate Red redVal model.pair2
-  in
-    { model | pair1 = pair1, totals = totals, pair2 = pair2}
+      let
+        (pair1, redVal, greenVal) = Pair.update sub model.pair1
+        totals = Totals.update (Totals.UpdateRed redVal) model.totals
+        pair2 = Pair.manualUpdate Pair.Red redVal model.pair2
+      in
+        { model | pair1 = pair1, totals = totals, pair2 = pair2 }
 ```
 
 ## Running the example
@@ -65,5 +65,6 @@ git clone git@github.com:afcastano/elm-nested-component-communication.git
 cd elm-nested-component-communication
 elm-reactor
 ```
+go to ```http://localhost:8000/src/Main.elm```
 
-go to http://localhost:8000/src/Main.elm
+Thanks to [rofrol](https://github.com/rofrol) for all the corrections made to this example.
