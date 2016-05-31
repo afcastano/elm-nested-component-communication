@@ -19,9 +19,9 @@ init num =
 view : String -> { c | btnClicks : a, num : b } -> Html Msg
 view color model =
   div [ style ["display" => "inline-block", "margin-right" => "1rem"] ]
-    [ button [ onClick Decrement ] [ text "-" ]
+    [ button [ onClick Increment ] [ text "+" ]
     , div [ style ["color" => color]] [ text <| toString model.num ]
-    , button [ onClick Increment ] [ text "+" ]
+    , button [ onClick Decrement ] [ text "-" ]
     , div [ ] [ text <| "btn click: " ++ (toString model.btnClicks) ]
     ]
 
