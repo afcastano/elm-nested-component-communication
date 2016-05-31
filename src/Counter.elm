@@ -41,10 +41,10 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         Increment ->
-            { model | num = model.num + 1, btnClicks = model.btnClicks + 1 }
+            Model (model.num + 1) (model.btnClicks + 1)
 
         Decrement ->
-            { model | num = model.num - 1, btnClicks = model.btnClicks + 1 }
+            Model (model.num - 1) (model.btnClicks + 1)
 
         SetNum num ->
             { model | num = num }
