@@ -31,9 +31,6 @@ type Msg
   = PairRed Counter.Msg
   | PairGreen Counter.Msg
 
-type alias RedVal = Int
-type alias GreenVal = Int
-
 update : Msg -> Model -> Model
 update msg model =
   case msg of
