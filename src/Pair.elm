@@ -1,4 +1,4 @@
-module Pair exposing (Model, init, view, Msg(Red), update)
+module Pair exposing (Model, init, view, Msg(Red), update, getRedValue)
 
 import Counter
 
@@ -43,3 +43,9 @@ update msg model =
 
     Red modelOther ->
       { model | redCounter = Counter.update (Counter.SetNum modelOther.redCounter) model.redCounter }
+
+
+------- INTEFACE HELPERS
+getRedValue : Model -> Int
+getRedValue model =
+  Counter.getValue model.redCounter
