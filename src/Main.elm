@@ -44,10 +44,10 @@ update msg model =
         NoOp ->
             model
 
-        Pair1 sub ->
+        Pair1 subMsg ->
             let
                 pair1 =
-                    Pair.update sub model.pair1
+                    Pair.update subMsg model.pair1
 
                 totals =
                     Totals.update (Totals.UpdateRed <| Pair.getRedNum pair1) model.totals
@@ -57,10 +57,10 @@ update msg model =
             in
                 { model | pair1 = pair1, pair2 = pair2, totals = totals }
 
-        Pair2 sub ->
+        Pair2 subMsg ->
             let
                 pair2 =
-                    Pair.update sub model.pair2
+                    Pair.update subMsg model.pair2
 
                 totals =
                     Totals.update (Totals.UpdateRed <| Pair.getRedNum pair2) model.totals

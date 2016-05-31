@@ -41,11 +41,11 @@ type Msg
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        PairGreen sub ->
-            { model | greenCounter = Counter.update sub model.greenCounter, totalClickCount = model.totalClickCount + 1 }
+        PairGreen subMsg ->
+            { model | greenCounter = Counter.update subMsg model.greenCounter, totalClickCount = model.totalClickCount + 1 }
 
-        PairRed sub ->
-            { model | redCounter = Counter.update sub model.redCounter, totalClickCount = model.totalClickCount + 1 }
+        PairRed subMsg ->
+            { model | redCounter = Counter.update subMsg model.redCounter, totalClickCount = model.totalClickCount + 1 }
 
         UpdateRed value ->
             { model | redCounter = Counter.update (Counter.SetNum value) model.redCounter }
