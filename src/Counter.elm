@@ -1,36 +1,38 @@
-module Counter exposing (CounterModel, counterUpdate, counterInit, counterView, CounterMsg(SetNum), getValue)
+module Counter exposing (Model, update, init, view, Msg(SetNum), getValue)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 
-type alias CounterModel =
+(=>) : a -> b -> ( a, b )
+(=>) = (,)
+
+type alias Model =
   { num : Int
   , btnClicks : Int
   }
 
-counterInit num =
-  CounterModel num 0
+init : Int -> Model
+init num =
+  Model num 0
 
-counterView color model =
-  div [ style [("display","inline-block"), ("margin-right", "1rem")] ]
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [ style [("color", color)]] [ text (toString model.num) ]
-    , button [ onClick Increment ] [ text "+" ]
-    , div [ ] [ text ("btn click: " ++ (toString model.btnClicks)) ]
+view : String -> { c | btnClicks : a, num : b } -> Html Msg
+view color model =
+  div [ style ["display" => "inline-block", "margin-right" => "1rem"] ]
+    [ button [ onClick Increment ] [ text "+" ]
+    , div [ style ["color" => color]] [ text <| toString model.num ]
+    , button [ onClick Decrement ] [ text "-" ]
+    , div [ ] [ text <| "btn click: " ++ (toString model.btnClicks) ]
     ]
 
-type CounterMsg
-  = NoOp
-  | Increment
+type Msg
+  = Increment
   | Decrement
   | SetNum Int
 
-counterUpdate : CounterMsg -> CounterModel -> CounterModel
-counterUpdate msg model =
+update : Msg -> Model -> Model
+update msg model =
   case msg of
-    NoOp ->
-      model
     Increment ->
       { model | num = model.num + 1, btnClicks = model.btnClicks + 1 }
 
@@ -41,6 +43,6 @@ counterUpdate msg model =
       {model | num = num}
 
 ------- INTEFACE HELPERS
-getValue : CounterModel -> Int
+getValue : Model -> Int
 getValue model =
   model.num

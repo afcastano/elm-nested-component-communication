@@ -61,8 +61,8 @@ Pair1 sub ->
 To run it, simply do:
 
 ```
-git clone git@bitbucket.org:afcastano/elm-update-sibling-splike.git
-cd elm-update-sibling-spike
+git clone git@bitbucket.org:afcastano/elm-nested-component-communication.git
+cd elm-nested-component-communication
 elm-reactor
 ```
 
