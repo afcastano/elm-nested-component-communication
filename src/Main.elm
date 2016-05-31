@@ -20,8 +20,7 @@ init = Model Pair.init Pair.init Totals.init
 view : Model -> Html Msg
 view model =
   div []
-    [
-      div [][App.map (always NoOp) (Totals.view model.totals)]
+    [ div [][App.map (always NoOp) (Totals.view model.totals)]
     , div [][App.map Pair1 (Pair.view model.pair1)]
     , div [][App.map Pair2 (Pair.view model.pair2)]
     ]

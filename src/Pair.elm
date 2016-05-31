@@ -22,19 +22,16 @@ init =
 view : Model -> Html Msg
 view model =
   div [ style ["background-color" => "lightgray", "margin-bottom" => "1rem"] ]
-    [
-      div []
-        [
-          div [][text <| "Total click count " ++ (toString model.totalClickCount)]
+    [ div []
+        [ div [][text <| "Total click count " ++ (toString model.totalClickCount)]
         ]
-    ,  countersView model
+    , countersView model
     ]
 
 countersView: Model -> Html Msg
 countersView model =
   div []
-    [
-      App.map PairGreen (Counter.view "green" model.greenCounter)
+    [ App.map PairGreen (Counter.view "green" model.greenCounter)
     , App.map PairRed (Counter.view "red" model.redCounter)
     ]
 
