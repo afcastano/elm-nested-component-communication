@@ -39,7 +39,7 @@ update msg model =
     Pair1 sub ->
       let
         pair1 = Pair.update sub model.pair1
-        totals = Totals.update (Totals.UpdateRed <| Pair.getRedValue pair1) model.totals
+        totals = Totals.update (Totals.UpdateRed <| Pair.getRedNum pair1) model.totals
         pair2 = Pair.update (Pair.Red pair1) model.pair2
       in
         { model | pair1 = pair1, totals = totals, pair2 = pair2 }
@@ -47,7 +47,7 @@ update msg model =
     Pair2 sub ->
       let
         pair2 = Pair.update sub model.pair2
-        totals = Totals.update (Totals.UpdateRed <| Pair.getRedValue pair2) model.totals
+        totals = Totals.update (Totals.UpdateRed <| Pair.getRedNum pair2) model.totals
         pair1 = Pair.update (Pair.Red pair2) model.pair1
       in
         { model | pair1 = pair1, totals = totals, pair2 = pair2 }

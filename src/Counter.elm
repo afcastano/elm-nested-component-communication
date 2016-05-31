@@ -1,4 +1,4 @@
-module Counter exposing (Model, update, init, view, Msg(SetNum), getValue)
+module Counter exposing (Model, update, init, view, Msg(SetNum), getNum)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -43,6 +43,6 @@ update msg model =
       {model | num = model.num}
 
 ------- INTEFACE HELPERS
-getValue : Model -> Int
-getValue model =
+getNum : Model -> Int
+getNum model =
   model.num

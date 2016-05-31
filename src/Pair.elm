@@ -1,4 +1,4 @@
-module Pair exposing (Model, init, view, Msg(Red), update, getRedValue)
+module Pair exposing (Model, init, view, Msg(Red), update, getRedNum)
 
 import Counter
 
@@ -46,6 +46,6 @@ update msg model =
 
 
 ------- INTEFACE HELPERS
-getRedValue : Model -> Int
-getRedValue model =
-  Counter.getValue model.redCounter
+getRedNum : Model -> Int
+getRedNum model =
+  Counter.getNum model.redCounter
