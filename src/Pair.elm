@@ -38,7 +38,6 @@ countersView model =
     , App.map PairRed (Counter.view "red" model.redCounter)
     ]
 
-
 type Msg
   = PairRed Counter.Msg
   | PairGreen Counter.Msg

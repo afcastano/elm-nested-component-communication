@@ -18,14 +18,10 @@ view : Model -> Html Msg
 view model =
   div [style ["color" => "red"]][text <| "Red val: " ++ (toString model.redNum)]
 
-type Msg
-  = NoOp
-  | UpdateRed Int
+type Msg = UpdateRed Int
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    NoOp ->
-      model
     UpdateRed redNum ->
       { model | redNum = redNum }

@@ -26,7 +26,6 @@ view model =
     , div [][App.map Pair2 (Pair.view model.pair2)]
     ]
 
-
 type Msg
   = NoOp
   | Pair1 Pair.Msg
