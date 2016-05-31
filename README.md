@@ -4,6 +4,9 @@ The example tries to implement the accepted answer of this [StackOverflow questi
 
 Please create [issues](https://github.com/afcastano/elm-nested-component-communication/issues) with any feedback or leave comments in the [SO](http://stackoverflow.com/questions/37328203/elm-0-17-how-to-subscribe-to-sibling-nested-component-changes) question.
 
+### Working example:
+http://afcastano.github.io/elm-nested-component-communication/
+
 ### Problems:
 - The parent component needs to know about the internals of the children. It is not scalable.
 
