@@ -44,7 +44,6 @@ update msg model =
     UpdateRed value ->
       { model | redCounter = Counter.update (Counter.SetNum value) model.redCounter }
 
-
 ------- INTEFACE HELPERS
 getRedNum : Model -> Int
 getRedNum model =
