@@ -14,7 +14,7 @@ Please create [issues](https://github.com/afcastano/elm-nested-component-communi
 
 ```Counter.elm``` exposes getValue method to return the value of the counter without knowing the internal structure:
 
-```
+```elm
 getValue : CounterModel -> Int
 getValue model =
   model.num
@@ -22,7 +22,7 @@ getValue model =
 
 ```Pair.elm``` exposes a new update function that will receive a new msg and a value:
 
-```
+```elm
 type ManualUpdateMsg
   = Red
 
@@ -38,7 +38,7 @@ manualUpdate msg value model =
 
 Also, the normal update function returns extra data that includes the value of the counters:
 
-```
+```elm
 type alias RedVal = Int
 type alias GreenVal = Int
 
@@ -47,7 +47,7 @@ pairUpdate : PairMsg -> CounterPair -> (CounterPair, RedVal, GreenVal)
 
 ```Main.elm``` orchestrates the whole thing. Whenever a counter changes, it updates the other counter and the totals without knowing the internal structure of neither of them:
 
-```
+```elm
 Pair1 sub ->
   let
     (pair1, redVal, greenVal) = pairUpdate sub model.pair1
@@ -61,7 +61,7 @@ Pair1 sub ->
 To run it, simply do:
 
 ```
-git clone git@bitbucket.org:afcastano/elm-nested-component-communication.git
+git clone git@github.com:afcastano/elm-nested-component-communication.git
 cd elm-nested-component-communication
 elm-reactor
 ```
