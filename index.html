@@ -3195,10 +3195,11 @@ function toEffect(isCmd, home, taggers, value)
 {
 	function applyTaggers(x)
 	{
-		while (taggers)
+		var temp = taggers;
+		while (temp)
 		{
-			x = taggers.tagger(x);
-			taggers = taggers.rest;
+			x = temp.tagger(x);
+			temp = temp.rest;
 		}
 		return x;
 	}
@@ -5062,7 +5063,10 @@ function badOneOf(problems)
 	return { tag: 'oneOf', problems: problems };
 }
 
-var bad = { tag: 'fail' };
+function bad(msg)
+{
+	return { tag: 'fail', msg: msg };
+}
 
 function badToString(problem)
 {
@@ -5098,7 +5102,8 @@ function badToString(problem)
 
 			case 'fail':
 				return 'I ran into a `fail` decoder'
-					+ (context === '_' ? '' : ' at ' + context);
+					+ (context === '_' ? '' : ' at ' + context)
+					+ ': ' + problem.msg;
 		}
 	}
 }
@@ -5145,14 +5150,19 @@ function runHelp(decoder, value)
 				: badPrimitive('a Bool', value);
 
 		case 'int':
-			var isNotInt =
-				typeof value !== 'number'
-				|| !(-2147483647 < value && value < 2147483647 && (value | 0) === value)
-				|| !(isFinite(value) && !(value % 1));
+			if (typeof value !== 'number') {
+				return badPrimitive('an Int', value);
+			}
 
-			return isNotInt
-				? badPrimitive('an Int', value)
-				: ok(value);
+			if (-2147483647 < value && value < 2147483647 && (value | 0) === value) {
+				return ok(value);
+			}
+
+			if (isFinite(value) && !(value % 1)) {
+				return ok(value);
+			}
+
+			return badPrimitive('an Int', value);
 
 		case 'float':
 			return (typeof value === 'number')
@@ -5232,7 +5242,7 @@ function runHelp(decoder, value)
 		case 'key-value':
 			if (typeof value !== 'object' || value === null || value instanceof Array)
 			{
-				return err('an object', value);
+				return badPrimitive('an object', value);
 			}
 
 			var keyValuePairs = _elm_lang$core$Native_List.Nil;
@@ -5321,7 +5331,7 @@ function runHelp(decoder, value)
 			return badOneOf(errors);
 
 		case 'fail':
-			return bad;
+			return bad(decoder.msg);
 
 		case 'succeed':
 			return ok(decoder.msg);
@@ -5856,11 +5866,24 @@ function render(vNode, eventNode)
 			return render(vNode.node, eventNode);
 
 		case 'tagger':
+			var subNode = vNode.node;
+			var tagger = vNode.tagger;
+		
+			while (subNode.type === 'tagger')
+			{
+				typeof tagger !== 'object'
+					? tagger = [tagger, subNode.tagger]
+					: tagger.push(subNode.tagger);
+
+				subNode = subNode.node;
+			}
+            
 			var subEventRoot = {
-				tagger: vNode.tagger,
+				tagger: tagger,
 				parent: eventNode
 			};
-			var domNode = render(vNode.node, subEventRoot);
+			
+			var domNode = render(subNode, subEventRoot);
 			domNode.elm_event_node_ref = subEventRoot;
 			return domNode;
 
@@ -5955,6 +5978,7 @@ function applyEvents(domNode, eventNode, events)
 		if (typeof value === 'undefined')
 		{
 			domNode.removeEventListener(key, handler);
+			allHandlers[key] = undefined;
 		}
 		else if (typeof handler === 'undefined')
 		{
@@ -6270,10 +6294,7 @@ function diffFacts(a, b, category)
 				(category === STYLE_KEY)
 					? ''
 					:
-				(category === EVENT_KEY)
-					? null
-					:
-				(category === ATTR_KEY)
+				(category === EVENT_KEY || category === ATTR_KEY)
 					? undefined
 					:
 				{ namespace: a[aKey].namespace, value: undefined };
@@ -6388,7 +6409,14 @@ function addDomNodesHelp(domNode, vNode, patches, i, low, high, eventNode)
 	switch (vNode.type)
 	{
 		case 'tagger':
-			return addDomNodesHelp(domNode, vNode.node, patches, i, low + 1, high, domNode.elm_event_node_ref);
+			var subNode = vNode.node;
+            
+			while (subNode.type === "tagger")
+			{
+				subNode = subNode.node;
+			}
+            
+			return addDomNodesHelp(domNode, subNode, patches, i, low + 1, high, domNode.elm_event_node_ref);
 
 		case 'node':
 			var vChildren = vNode.children;
@@ -6500,10 +6528,9 @@ function redraw(domNode, vNode, eventNode)
 	var parentNode = domNode.parentNode;
 	var newNode = render(vNode, eventNode);
 
-	var ref = domNode.elm_event_node_ref
-	if (typeof ref !== 'undefined')
+	if (typeof newNode.elm_event_node_ref === 'undefined')
 	{
-		newNode.elm_event_node_ref = ref;
+		newNode.elm_event_node_ref = domNode.elm_event_node_ref;
 	}
 
 	if (parentNode && newNode !== domNode)
@@ -7166,12 +7193,10 @@ var _elm_lang$html$Html_Events$Options = F2(
 var _user$project$Counter$getValue = function (model) {
 	return model.num;
 };
-var _user$project$Counter$counterUpdate = F2(
+var _user$project$Counter$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
-			case 'NoOp':
-				return model;
 			case 'Increment':
 				return _elm_lang$core$Native_Utils.update(
 					model,
@@ -7186,19 +7211,24 @@ var _user$project$Counter$counterUpdate = F2(
 					{num: _p0._0});
 		}
 	});
-var _user$project$Counter$CounterModel = F2(
+var _user$project$Counter_ops = _user$project$Counter_ops || {};
+_user$project$Counter_ops['=>'] = F2(
+	function (v0, v1) {
+		return {ctor: '_Tuple2', _0: v0, _1: v1};
+	});
+var _user$project$Counter$Model = F2(
 	function (a, b) {
 		return {num: a, btnClicks: b};
 	});
-var _user$project$Counter$counterInit = function (num) {
-	return A2(_user$project$Counter$CounterModel, num, 0);
+var _user$project$Counter$init = function (num) {
+	return A2(_user$project$Counter$Model, num, 0);
 };
 var _user$project$Counter$SetNum = function (a) {
 	return {ctor: 'SetNum', _0: a};
 };
 var _user$project$Counter$Decrement = {ctor: 'Decrement'};
 var _user$project$Counter$Increment = {ctor: 'Increment'};
-var _user$project$Counter$counterView = F2(
+var _user$project$Counter$view = F2(
 	function (color, model) {
 		return A2(
 			_elm_lang$html$Html$div,
@@ -7207,8 +7237,8 @@ var _user$project$Counter$counterView = F2(
 					_elm_lang$html$Html_Attributes$style(
 					_elm_lang$core$Native_List.fromArray(
 						[
-							{ctor: '_Tuple2', _0: 'display', _1: 'inline-block'},
-							{ctor: '_Tuple2', _0: 'margin-right', _1: '1rem'}
+							A2(_user$project$Counter_ops['=>'], 'display', 'inline-block'),
+							A2(_user$project$Counter_ops['=>'], 'margin-right', '1rem')
 						]))
 				]),
 			_elm_lang$core$Native_List.fromArray(
@@ -7217,11 +7247,11 @@ var _user$project$Counter$counterView = F2(
 					_elm_lang$html$Html$button,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html_Events$onClick(_user$project$Counter$Decrement)
+							_elm_lang$html$Html_Events$onClick(_user$project$Counter$Increment)
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text('-')
+							_elm_lang$html$Html$text('+')
 						])),
 					A2(
 					_elm_lang$html$Html$div,
@@ -7230,7 +7260,7 @@ var _user$project$Counter$counterView = F2(
 							_elm_lang$html$Html_Attributes$style(
 							_elm_lang$core$Native_List.fromArray(
 								[
-									{ctor: '_Tuple2', _0: 'color', _1: color}
+									A2(_user$project$Counter_ops['=>'], 'color', color)
 								]))
 						]),
 					_elm_lang$core$Native_List.fromArray(
@@ -7242,11 +7272,11 @@ var _user$project$Counter$counterView = F2(
 					_elm_lang$html$Html$button,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html_Events$onClick(_user$project$Counter$Increment)
+							_elm_lang$html$Html_Events$onClick(_user$project$Counter$Decrement)
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text('+')
+							_elm_lang$html$Html$text('-')
 						])),
 					A2(
 					_elm_lang$html$Html$div,
@@ -7262,87 +7292,65 @@ var _user$project$Counter$counterView = F2(
 						]))
 				]));
 	});
-var _user$project$Counter$NoOp = {ctor: 'NoOp'};
 var _user$project$Pair$manualUpdate = F3(
 	function (msg, value, model) {
 		var _p0 = msg;
 		var redCounter = A2(
-			_user$project$Counter$counterUpdate,
+			_user$project$Counter$update,
 			_user$project$Counter$SetNum(value),
 			model.redCounter);
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{redCounter: redCounter});
 	});
-var _user$project$Pair$pairUpdate = F2(
+var _user$project$Pair$update = F2(
 	function (msg, model) {
 		var _p1 = msg;
-		switch (_p1.ctor) {
-			case 'NoOp':
-				return {
-					ctor: '_Tuple3',
-					_0: model,
-					_1: _user$project$Counter$getValue(model.redCounter),
-					_2: _user$project$Counter$getValue(model.greenCounter)
-				};
-			case 'PairGreen':
-				var greenCounter = A2(_user$project$Counter$counterUpdate, _p1._0, model.greenCounter);
-				var model$ = _elm_lang$core$Native_Utils.update(
-					model,
-					{greenCounter: greenCounter, totalClickCount: model.totalClickCount + 1});
-				return {
-					ctor: '_Tuple3',
-					_0: model$,
-					_1: _user$project$Counter$getValue(model$.redCounter),
-					_2: _user$project$Counter$getValue(model$.greenCounter)
-				};
-			default:
-				var redCounter = A2(_user$project$Counter$counterUpdate, _p1._0, model.redCounter);
-				var model$ = _elm_lang$core$Native_Utils.update(
-					model,
-					{redCounter: redCounter, totalClickCount: model.totalClickCount + 1});
-				return {
-					ctor: '_Tuple3',
-					_0: model$,
-					_1: _user$project$Counter$getValue(model$.redCounter),
-					_2: _user$project$Counter$getValue(model$.greenCounter)
-				};
+		if (_p1.ctor === 'PairGreen') {
+			var greenCounter = A2(_user$project$Counter$update, _p1._0, model.greenCounter);
+			var model$ = _elm_lang$core$Native_Utils.update(
+				model,
+				{greenCounter: greenCounter, totalClickCount: model.totalClickCount + 1});
+			return {
+				ctor: '_Tuple3',
+				_0: model$,
+				_1: _user$project$Counter$getValue(model$.redCounter),
+				_2: _user$project$Counter$getValue(model$.greenCounter)
+			};
+		} else {
+			var redCounter = A2(_user$project$Counter$update, _p1._0, model.redCounter);
+			var model$ = _elm_lang$core$Native_Utils.update(
+				model,
+				{redCounter: redCounter, totalClickCount: model.totalClickCount + 1});
+			return {
+				ctor: '_Tuple3',
+				_0: model$,
+				_1: _user$project$Counter$getValue(model$.redCounter),
+				_2: _user$project$Counter$getValue(model$.greenCounter)
+			};
 		}
 	});
-var _user$project$Pair$CounterPair = F3(
+var _user$project$Pair_ops = _user$project$Pair_ops || {};
+_user$project$Pair_ops['=>'] = F2(
+	function (v0, v1) {
+		return {ctor: '_Tuple2', _0: v0, _1: v1};
+	});
+var _user$project$Pair$Model = F3(
 	function (a, b, c) {
 		return {greenCounter: a, redCounter: b, totalClickCount: c};
 	});
-var _user$project$Pair$pairInit = A3(
-	_user$project$Pair$CounterPair,
-	_user$project$Counter$counterInit(0),
-	_user$project$Counter$counterInit(0),
+var _user$project$Pair$init = A3(
+	_user$project$Pair$Model,
+	_user$project$Counter$init(0),
+	_user$project$Counter$init(0),
 	0);
-var _user$project$Pair$NoOp = {ctor: 'NoOp'};
 var _user$project$Pair$PairGreen = function (a) {
 	return {ctor: 'PairGreen', _0: a};
 };
 var _user$project$Pair$PairRed = function (a) {
 	return {ctor: 'PairRed', _0: a};
 };
-var _user$project$Pair$countersView = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html_App$map,
-				_user$project$Pair$PairGreen,
-				A2(_user$project$Counter$counterView, 'green', model.greenCounter)),
-				A2(
-				_elm_lang$html$Html_App$map,
-				_user$project$Pair$PairRed,
-				A2(_user$project$Counter$counterView, 'red', model.redCounter))
-			]));
-};
-var _user$project$Pair$pairView = function (model) {
+var _user$project$Pair$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -7350,8 +7358,8 @@ var _user$project$Pair$pairView = function (model) {
 				_elm_lang$html$Html_Attributes$style(
 				_elm_lang$core$Native_List.fromArray(
 					[
-						{ctor: '_Tuple2', _0: 'background-color', _1: 'lightgray'},
-						{ctor: '_Tuple2', _0: 'margin-bottom', _1: '1rem'}
+						A2(_user$project$Pair_ops['=>'], 'background-color', 'lightgray'),
+						A2(_user$project$Pair_ops['=>'], 'margin-bottom', '1rem')
 					]))
 			]),
 		_elm_lang$core$Native_List.fromArray(
@@ -7362,35 +7370,36 @@ var _user$project$Pair$pairView = function (model) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
+						_elm_lang$html$Html$text(
 						A2(
-						_elm_lang$html$Html$div,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html$text(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'Total click count ',
-									_elm_lang$core$Basics$toString(model.totalClickCount)))
-							]))
+							_elm_lang$core$Basics_ops['++'],
+							'Total click count ',
+							_elm_lang$core$Basics$toString(model.totalClickCount)))
 					])),
-				_user$project$Pair$countersView(model)
+				A2(
+				_elm_lang$html$Html_App$map,
+				_user$project$Pair$PairGreen,
+				A2(_user$project$Counter$view, 'green', model.greenCounter)),
+				A2(
+				_elm_lang$html$Html_App$map,
+				_user$project$Pair$PairRed,
+				A2(_user$project$Counter$view, 'red', model.redCounter))
 			]));
 };
 var _user$project$Pair$Red = {ctor: 'Red'};
-var _user$project$Totals$totalsUpdate = F2(
+var _user$project$Totals$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		if (_p0.ctor === 'NoOp') {
-			return model;
-		} else {
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{redNum: _p0._0});
-		}
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{redNum: _p0._0});
 	});
-var _user$project$Totals$totalsView = function (model) {
+var _user$project$Totals_ops = _user$project$Totals_ops || {};
+_user$project$Totals_ops['=>'] = F2(
+	function (v0, v1) {
+		return {ctor: '_Tuple2', _0: v0, _1: v1};
+	});
+var _user$project$Totals$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -7398,7 +7407,7 @@ var _user$project$Totals$totalsView = function (model) {
 				_elm_lang$html$Html_Attributes$style(
 				_elm_lang$core$Native_List.fromArray(
 					[
-						{ctor: '_Tuple2', _0: 'color', _1: 'red'}
+						A2(_user$project$Totals_ops['=>'], 'color', 'red')
 					]))
 			]),
 		_elm_lang$core$Native_List.fromArray(
@@ -7410,15 +7419,13 @@ var _user$project$Totals$totalsView = function (model) {
 					_elm_lang$core$Basics$toString(model.redNum)))
 			]));
 };
-var _user$project$Totals$TotalsModel = F2(
-	function (a, b) {
-		return {redNum: a, foo: b};
-	});
-var _user$project$Totals$totalsInit = A2(_user$project$Totals$TotalsModel, 0, 'Foo');
+var _user$project$Totals$Model = function (a) {
+	return {redNum: a};
+};
+var _user$project$Totals$init = _user$project$Totals$Model(0);
 var _user$project$Totals$UpdateRed = function (a) {
 	return {ctor: 'UpdateRed', _0: a};
 };
-var _user$project$Totals$NoOp = {ctor: 'NoOp'};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
@@ -7426,12 +7433,12 @@ var _user$project$Main$update = F2(
 			case 'NoOp':
 				return model;
 			case 'Pair1':
-				var _p1 = A2(_user$project$Pair$pairUpdate, _p0._0, model.pair1);
+				var _p1 = A2(_user$project$Pair$update, _p0._0, model.pair1);
 				var pair1 = _p1._0;
 				var redVal = _p1._1;
 				var greenVal = _p1._2;
 				var totals = A2(
-					_user$project$Totals$totalsUpdate,
+					_user$project$Totals$update,
 					_user$project$Totals$UpdateRed(redVal),
 					model.totals);
 				var pair2 = A3(_user$project$Pair$manualUpdate, _user$project$Pair$Red, redVal, model.pair2);
@@ -7439,12 +7446,12 @@ var _user$project$Main$update = F2(
 					model,
 					{pair1: pair1, totals: totals, pair2: pair2});
 			default:
-				var _p2 = A2(_user$project$Pair$pairUpdate, _p0._0, model.pair2);
+				var _p2 = A2(_user$project$Pair$update, _p0._0, model.pair2);
 				var pair2 = _p2._0;
 				var redVal = _p2._1;
 				var greenVal = _p2._2;
 				var totals = A2(
-					_user$project$Totals$totalsUpdate,
+					_user$project$Totals$update,
 					_user$project$Totals$UpdateRed(redVal),
 					model.totals);
 				var pair1 = A3(_user$project$Pair$manualUpdate, _user$project$Pair$Red, redVal, model.pair1);
@@ -7453,20 +7460,13 @@ var _user$project$Main$update = F2(
 					{pair1: pair1, totals: totals, pair2: pair2});
 		}
 	});
-var _user$project$Main$fireUpdate = F2(
-	function (model, msg) {
-		return A2(_user$project$Main$update, msg, model);
-	});
 var _user$project$Main$Model = F3(
 	function (a, b, c) {
 		return {pair1: a, pair2: b, totals: c};
 	});
-var _user$project$Main$init = A3(_user$project$Main$Model, _user$project$Pair$pairInit, _user$project$Pair$pairInit, _user$project$Totals$totalsInit);
+var _user$project$Main$init = A3(_user$project$Main$Model, _user$project$Pair$init, _user$project$Pair$init, _user$project$Totals$init);
 var _user$project$Main$Pair2 = function (a) {
 	return {ctor: 'Pair2', _0: a};
-};
-var _user$project$Main$toPair2Msg = function (pairMsg) {
-	return _user$project$Main$Pair2(pairMsg);
 };
 var _user$project$Main$Pair1 = function (a) {
 	return {ctor: 'Pair1', _0: a};
@@ -7480,38 +7480,17 @@ var _user$project$Main$view = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						A2(
-						_elm_lang$html$Html_App$map,
-						_elm_lang$core$Basics$always(_user$project$Main$NoOp),
-						_user$project$Totals$totalsView(model.totals))
-					])),
+				_elm_lang$html$Html_App$map,
+				_elm_lang$core$Basics$always(_user$project$Main$NoOp),
+				_user$project$Totals$view(model.totals)),
 				A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						A2(
-						_elm_lang$html$Html_App$map,
-						_user$project$Main$Pair1,
-						_user$project$Pair$pairView(model.pair1))
-					])),
+				_elm_lang$html$Html_App$map,
+				_user$project$Main$Pair1,
+				_user$project$Pair$view(model.pair1)),
 				A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						A2(
-						_elm_lang$html$Html_App$map,
-						_user$project$Main$Pair2,
-						_user$project$Pair$pairView(model.pair2))
-					]))
+				_elm_lang$html$Html_App$map,
+				_user$project$Main$Pair2,
+				_user$project$Pair$view(model.pair2))
 			]));
 };
 var _user$project$Main$main = {

@@ -16,7 +16,7 @@ init : Int -> Model
 init num =
   Model num 0
 
-view : String -> { c | btnClicks : a, num : b } -> Html Msg
+view : String -> Model -> Html Msg
 view color model =
   div [ style ["display" => "inline-block", "margin-right" => "1rem"] ]
     [ button [ onClick Increment ] [ text "+" ]
