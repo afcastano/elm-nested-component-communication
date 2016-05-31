@@ -1,4 +1,4 @@
-module Pair exposing (Model, init, view, Msg, update, ManualUpdateMsg(Red), manualUpdate)
+module Pair exposing (Model, init, view, Msg(Red), update)
 
 import Counter
 
@@ -30,6 +30,7 @@ view model =
 type Msg
   = PairRed Counter.Msg
   | PairGreen Counter.Msg
+  | Red Int
 
 update : Msg -> Model -> Model
 update msg model =
@@ -40,16 +41,5 @@ update msg model =
     PairRed sub ->
       { model | redCounter = Counter.update sub model.redCounter, totalClickCount = model.totalClickCount + 1 }
 
------ Interface helper
-
-type ManualUpdateMsg
-  = Red
-
-manualUpdate: ManualUpdateMsg -> Int -> Model -> Model
-manualUpdate msg value model =
-  case msg of
-    Red ->
-      let
-        redCounter = Counter.update (Counter.SetNum value) model.redCounter
-      in
-        { model | redCounter = redCounter }
+    Red val ->
+      { model | redCounter = Counter.update (Counter.SetNum val) model.redCounter }
