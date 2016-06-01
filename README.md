@@ -11,53 +11,61 @@ http://afcastano.github.io/elm-nested-component-communication/
 - The parent component needs to know about the internals of the children. It is not scalable.
 
 ### Proposed solution:
-- Each component will return the data the parent needs and also expose functions to update and access nested data.
+- Each component will provide functions to access the data the parent needs and also expose Msg to update nested data. In this way, the parent component only need to know about the exposed functions and Msg of the direct child.
 
 ## Key parts of the implementation
 
-```Counter.elm``` exposes getValue method to return the value of the counter without knowing the internal structure:
-
+```Counter.elm``` exposes ```getNum``` function to return the value of the counter without knowing the internal structure 
+and a new ```SetNum``` Msg to update it:
 ```elm
-getValue : Model -> Int
-getValue model =
-  model.num
+type Msg
+    = Increment
+    | Decrement
+    | SetNum Int
+```
+...
+```elm
+getNum : Model -> Int
+getNum model =
+    model.num
 ```
 
-```Pair.elm``` exposes a new update function that will receive a new msg and a value:
-
+```Pair.elm``` also exposes a function to return the red number:
 ```elm
-type ManualUpdateMsg
-  = Red
-
-manualUpdate: ManualUpdateMsg -> Int -> Model -> Model
-manualUpdate msg value model =
-  case msg of
-    Red ->
-      let
-        redCounter = Counter.update (Counter.SetNum value) model.redCounter
-      in
-        { model | redCounter = redCounter }
+getRedNum : Model -> Int
+getRedNum model =
+    Counter.getNum model.redCounter
 ```
-
-Also, the normal update function returns extra data that includes the value of the counters:
-
+and a new update Msg that is propagated to the update function of the Counter.
 ```elm
-type alias RedVal = Int
-type alias GreenVal = Int
+type Msg
+    = PairRed Counter.Msg
+    | PairGreen Counter.Msg
+    | UpdateRed Int
 
-update : Msg -> Model -> (Model, RedVal, GreenVal)
+
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        UpdateRed value ->
+            { model | redCounter = Counter.update (Counter.SetNum value) model.redCounter }
 ```
 
 ```Main.elm``` orchestrates the whole thing. Whenever a counter changes, it updates the other counter and the totals without knowing the internal structure of neither of them:
 
 ```elm
-Pair1 sub ->
-      let
-        (pair1, redVal, greenVal) = Pair.update sub model.pair1
-        totals = Totals.update (Totals.UpdateRed redVal) model.totals
-        pair2 = Pair.manualUpdate Pair.Red redVal model.pair2
-      in
-        { model | pair1 = pair1, totals = totals, pair2 = pair2 }
+Pair1 subMsg ->
+    let
+        pair1 =
+            Pair.update subMsg model.pair1
+
+        totals =
+            Totals.update (Totals.UpdateRed <| Pair.getRedNum pair1) model.totals
+
+        pair2 =
+            Pair.update (Pair.UpdateRed <| Pair.getRedNum pair1) model.pair2
+    in
+        Model pair1 pair2 totals
 ```
 
 ## Running the example
