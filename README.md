@@ -1,4 +1,4 @@
-# Example of Sibling/Nested communication in [elm](http://elm-lang.org/).
+# Example of Sibling/Nested component communication in [elm](http://elm-lang.org/).
 
 The example tries to implement the accepted answer of this [StackOverflow question](http://stackoverflow.com/questions/37328203/elm-0-17-how-to-subscribe-to-sibling-nested-component-changes)
 
