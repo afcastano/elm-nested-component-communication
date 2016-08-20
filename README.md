@@ -7,8 +7,8 @@ Please create [issues](https://github.com/afcastano/elm-nested-component-communi
 ### Working example:
 http://afcastano.github.io/elm-nested-component-communication/
 
-### Problems:
-- The parent component needs to know about the internals of the children. It is not scalable.
+### Problem:
+- I have one parent component with two children. With the Elm Architecture, how can I update the right child when any of the counters in the left child change? Avoid the parent component to know about the internals of the children since it is not scalable.
 
 ### Proposed solution:
 - Each component will provide functions to access the data the parent needs and also expose Msg to update nested data. In this way, the parent component only need to know about the exposed functions and Msg of the direct child.
