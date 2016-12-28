@@ -3,10 +3,9 @@ module Main exposing (..)
 import Pair
 import Totals
 import Html exposing (..)
-import Html.App as App exposing (beginnerProgram)
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     beginnerProgram { model = init, view = view, update = update }
 
@@ -26,9 +25,9 @@ init =
 view : Model -> Html Msg
 view model =
     div []
-        [ App.map (always NoOp) (Totals.view model.totals)
-        , App.map Pair1 (Pair.view model.pair1)
-        , App.map Pair2 (Pair.view model.pair2)
+        [ Html.map (always NoOp) (Totals.view model.totals)
+        , Html.map Pair1 (Pair.view model.pair1)
+        , Html.map Pair2 (Pair.view model.pair2)
         ]
 
 
