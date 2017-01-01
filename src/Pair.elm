@@ -3,7 +3,6 @@ module Pair exposing (Model, init, view, Msg(UpdateRed), update, getRedNum)
 import Counter
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.App as App
 
 
 (=>) : a -> b -> ( a, b )
@@ -27,8 +26,8 @@ view : Model -> Html Msg
 view model =
     div [ style [ "background-color" => "lightgray", "margin-bottom" => "1rem" ] ]
         [ div [] [ text <| "Total click count " ++ (toString model.totalClickCount) ]
-        , App.map PairGreen (Counter.view "green" model.greenCounter)
-        , App.map PairRed (Counter.view "red" model.redCounter)
+        , Html.map PairGreen (Counter.view "green" model.greenCounter)
+        , Html.map PairRed (Counter.view "red" model.redCounter)
         ]
 
 
